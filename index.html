@@ -603,13 +603,18 @@ button.secondary:hover:not(:disabled) {
     // ======= CONFIG =======
     const BACKEND_URL = "https://zr-q3p2.onrender.com";
     const POINTS_RATE = 10;
-    const DEFAULT_RESTAURANT_ID = "rest_001";
 
-    // ======= RESTAURANT ID =======
+    // ======= RESTAURANT FROM URL =======
     const urlParams = new URLSearchParams(window.location.search);
-    const RESTAURANT_ID = urlParams.get("rest_id") || DEFAULT_RESTAURANT_ID;
+    const RESTAURANT_ID = urlParams.get("rest_id");
 
-    console.log("Restaurant ID:", RESTAURANT_ID);
+    if (!RESTAURANT_ID) {
+      alert("⚠️ Missing restaurant ID in URL. Example: ?rest_id=rest_001");
+      document.body.innerHTML = '<div style="text-align:center;padding:50px;font-family:sans-serif;color:#F4E4C1;"><h1>⚠️ Configuration Error</h1><p>Missing restaurant ID parameter.</p><p>Contact your administrator.</p></div>';
+      throw new Error("Missing rest_id parameter");
+    }
+
+    console.log("🏪 Restaurant ID:", RESTAURANT_ID);
     document.getElementById("restaurantTag").textContent = RESTAURANT_ID;
 
     // ======= TAB SWITCH =======
@@ -672,7 +677,7 @@ button.secondary:hover:not(:disabled) {
       const bill = parseFloat(e.target.value);
       if (bill > 0) {
         const points = Math.floor(bill / POINTS_RATE);
-        pointsDisplay1.textContent = "Points Earned: " + points + " points";
+        pointsDisplay1.textContent = "💰 Points Earned: " + points + " points";
         pointsDisplay1.style.display = "block";
       } else pointsDisplay1.style.display = "none";
     });
@@ -696,7 +701,7 @@ button.secondary:hover:not(:disabled) {
         const points = Math.floor(bill / POINTS_RATE);
         const transactionId = "txn_" + phone + "_" + Date.now();
 
-        console.log("Creating transaction:", {transactionId, phone, name, bill, points, restaurant: RESTAURANT_ID});
+        console.log("📤 Creating transaction:", {transactionId, phone, name, bill, points, restaurant: RESTAURANT_ID});
 
         const res = await fetch(`${BACKEND_URL}/create-transaction`, {
           method: "POST",
@@ -713,17 +718,17 @@ button.secondary:hover:not(:disabled) {
         });
 
         const data = await res.json();
-        console.log("Response:", data);
+        console.log("📥 Response:", data);
 
         if (res.ok) {
-          showSuccess("successMsg1", `${points} points added for ${name || phone}`);
+          showSuccess("successMsg1", `✅ ${points} points added for ${name || phone}`);
           form1.reset();
           pointsDisplay1.style.display = "none";
         } else {
           showError("errorMsg1", data.error || "Failed to create transaction");
         }
       } catch (err) {
-        console.error("Transaction error:", err);
+        console.error("❌ Transaction error:", err);
         showError("errorMsg1","Network error. Please check your connection and try again.");
       } finally {
         loading1.style.display = "none";
@@ -760,12 +765,12 @@ button.secondary:hover:not(:disabled) {
       checkBtn.disabled = true;
 
       try {
-        console.log("Checking balance for:", phone, "Restaurant:", RESTAURANT_ID);
+        console.log("📤 Checking balance for:", phone, "Restaurant:", RESTAURANT_ID);
         
         const res = await fetch(`${BACKEND_URL}/check-balance?phone=${encodeURIComponent(phone)}&restaurant_id=${encodeURIComponent(RESTAURANT_ID)}`);
         const data = await res.json();
         
-        console.log("Balance response:", data);
+        console.log("📥 Balance response:", data);
 
         if (!res.ok) {
           showError("errorMsg2", data.error || "Error checking balance");
@@ -781,9 +786,9 @@ button.secondary:hover:not(:disabled) {
         currentCustomer = data.customer;
         balanceAmount.textContent = balance;
         balanceSection.style.display = "block";
-        showSuccess("successMsg2", "Balance retrieved successfully");
+        showSuccess("successMsg2", "✅ Balance retrieved successfully!");
       } catch (err) {
-        console.error("Balance check error:", err);
+        console.error("❌ Balance check error:", err);
         showError("errorMsg2","Network error. Please check your connection and try again.");
       } finally {
         checkBtn.disabled = false;
@@ -814,7 +819,7 @@ button.secondary:hover:not(:disabled) {
       loading2.style.display = "block";
 
       try {
-        console.log("Redeeming points:", {phone: currentCustomer.phone_number, points: pointsToRedeem, restaurant: RESTAURANT_ID});
+        console.log("📤 Redeeming points:", {phone: currentCustomer.phone_number, points: pointsToRedeem, restaurant: RESTAURANT_ID});
 
         const res = await fetch(`${BACKEND_URL}/redeem`, {
           method: "POST",
@@ -828,10 +833,10 @@ button.secondary:hover:not(:disabled) {
         });
 
         const data = await res.json();
-        console.log("Redemption response:", data);
+        console.log("📥 Redemption response:", data);
 
         if (res.ok) {
-          showSuccess("successMsg2", `Redeemed ${pointsToRedeem} points successfully! New balance: ${data.new_balance}`);
+          showSuccess("successMsg2", `✅ Redeemed ${pointsToRedeem} points successfully! New balance: ${data.new_balance}`);
           balanceAmount.textContent = data.new_balance;
           currentCustomer.points_balance = data.new_balance;
           points2.value = "";
@@ -840,7 +845,7 @@ button.secondary:hover:not(:disabled) {
           showError("errorMsg2", data.error || "Redemption failed");
         }
       } catch (err) {
-        console.error("Redemption error:", err);
+        console.error("❌ Redemption error:", err);
         showError("errorMsg2","Network error. Please check your connection and try again.");
       } finally {
         loading2.style.display = "none";
@@ -848,7 +853,7 @@ button.secondary:hover:not(:disabled) {
       }
     });
 
-    console.log("Feastly initialized");
+    console.log("✅ Feastly frontend initialized for restaurant:", RESTAURANT_ID);
   </script>
 </body>
 </html>
