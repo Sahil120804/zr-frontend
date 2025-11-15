@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feastly - Point Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --gold-primary: #D4AF37;
+  --gold-light: #F4E4C1;
+  --gold-dark: #B8941E;
+  --black-primary: #0A0A0A;
+  --black-secondary: #1A1A1A;
+  --black-tertiary: #2A2A2A;
+  --gray-text: #A0A0A0;
+  --success-green: #2D5F3F;
+  --success-bg: #1B3326;
+  --error-red: #8B2E2E;
+  --error-bg: #2B1616;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.4) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(244, 228, 193, 0.3) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(184, 148, 30, 0.25) 0%, transparent 60%),
+    linear-gradient(135deg, #1A1412 0%, #0F0D0B 30%, #1C1510 60%, #0D0B09 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 20s ease infinite;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 50% 80%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 50% 20%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  background: 
+    radial-gradient(ellipse 800px 600px at 20% 30%, rgba(212, 175, 55, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 700px at 80% 70%, rgba(244, 228, 193, 0.18) 0%, transparent 65%),
+    radial-gradient(ellipse 900px 500px at 50% 90%, rgba(184, 148, 30, 0.15) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+  animation: floatingOrbs 25s ease-in-out infinite;
+  filter: blur(90px);
+  opacity: 0.8;
+}
+
+@keyframes floatingOrbs {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  20% {
+    transform: translate(3%, -2%) scale(1.05) rotate(5deg);
+  }
+  40% {
+    transform: translate(-2%, 3%) scale(1.08) rotate(-3deg);
+  }
+  60% {
+    transform: translate(4%, 1%) scale(1.03) rotate(8deg);
+  }
+  80% {
+    transform: translate(-3%, -2%) scale(1.06) rotate(-5deg);
+  }
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 60% 40%, rgba(207, 192, 159, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 30% 70%, rgba(184, 148, 30, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 70% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+  animation: pulseGlow 18s ease-in-out infinite alternate;
+  filter: blur(60px);
+}
+
+@keyframes pulseGlow {
+  0% {
+    opacity: 0.5;
+    transform: scale(1) rotate(0deg);
+  }
+  33% {
+    opacity: 0.7;
+    transform: scale(1.1) rotate(120deg);
+  }
+  66% {
+    opacity: 0.6;
+    transform: scale(1.05) rotate(240deg);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1.15) rotate(360deg);
+  }
+}
+
+.container {
+  background: linear-gradient(145deg, #1A1A1A 0%, #0F0F0F 100%);
+  border-radius: 16px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(212, 175, 55, 0.2),
+    inset 0 1px 0 rgba(212, 175, 55, 0.1);
+  max-width: 520px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  animation: fadeInScale 0.6s ease-out;
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.topbar {
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #2A2A2A 0%, #1F1F1F 100%);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+
+.topbar strong {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #D4AF37 0%, #F4E4C1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+}
+
+.pill {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.08));
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--gold-primary);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabs { 
+  display: flex; 
+  background: var(--black-secondary);
+  position: relative;
+}
+
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 50%;
+  background: linear-gradient(90deg, var(--gold-primary), var(--gold-light));
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.tabs[data-active="redeem"] .tab-indicator {
+  transform: translateX(100%);
+}
+
+.tab {
+  flex: 1;
+  padding: 18px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--gray-text);
+  transition: all 0.3s ease;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+.tab.active {
+  color: var(--gold-primary);
+}
+
+.tab:hover:not(.active) { 
+  color: var(--gold-light);
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.content { padding: 40px; }
+
+.tab-content { 
+  display: none;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tab-content.active { display: block; }
+
+.header { text-align: center; margin-bottom: 35px; }
+
+.logo { 
+  display: none;
+}
+
+h1 { 
+  color: var(--gold-light); 
+  font-size: 28px; 
+  margin-bottom: 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.subtitle { 
+  color: var(--gray-text); 
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+
+.form-group { margin-bottom: 24px; }
+
+label {
+  display: block;
+  color: var(--gold-light);
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  background: rgba(42, 42, 42, 0.6);
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--gold-light);
+  backdrop-filter: blur(5px);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--gold-primary);
+  background: rgba(42, 42, 42, 0.9);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1), 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+input::placeholder { 
+  color: rgba(160, 160, 160, 0.6); 
+}
+
+.input-hint { 
+  font-size: 11px; 
+  color: var(--gray-text); 
+  margin-top: 6px;
+  font-weight: 300;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #D4AF37 0%, #B8941E 100%);
+  color: var(--black-primary);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+button:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+}
+
+button:active:not(:disabled) { transform: translateY(0); }
+
+button:disabled { 
+  background: linear-gradient(135deg, #3A3A3A, #2A2A2A); 
+  color: #666;
+  cursor: not-allowed; 
+  transform: none; 
+}
+
+button.secondary { 
+  background: linear-gradient(135deg, #2A2A2A, #1F1F1F); 
+  color: var(--gold-primary);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+button.secondary:hover:not(:disabled) { 
+  background: linear-gradient(135deg, #333, #282828);
+  border-color: var(--gold-primary);
+}
+
+.error {
+  background: linear-gradient(135deg, var(--error-bg), rgba(43, 22, 22, 0.8));
+  color: #ff9999;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  border-left: 3px solid var(--error-red);
+  display: none;
+  backdrop-filter: blur(5px);
+}
+
+.success {
+  background: linear-gradient(135deg, var(--success-bg), rgba(27, 51, 38, 0.8));
+  color: #99ffcc;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  border-left: 3px solid var(--success-green);
+  display: none;
+  backdrop-filter: blur(5px);
+}
+
+.loading {
+  display: none;
+  text-align: center;
+  color: var(--gold-primary);
+  font-size: 13px;
+  margin-top: 12px;
+  font-weight: 500;
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(212, 175, 55, 0.2);
+  border-top-color: var(--gold-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.info-box {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(212, 175, 55, 0.03));
+  border-left: 3px solid var(--gold-primary);
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--gray-text);
+  margin-top: 24px;
+  backdrop-filter: blur(5px);
+  line-height: 1.6;
+}
+
+.info-box strong { 
+  color: var(--gold-primary);
+  font-weight: 600;
+}
+
+.points-display {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.08));
+  padding: 14px;
+  border-radius: 8px;
+  margin-top: 12px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--gold-primary);
+  display: none;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(212, 175, 55, 0); }
+}
+
+.balance-box {
+  background: linear-gradient(135deg, rgba(45, 95, 63, 0.3), rgba(27, 51, 38, 0.2));
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px 0;
+  text-align: center;
+  border: 1px solid rgba(45, 95, 63, 0.5);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.balance-amount { 
+  font-size: 36px; 
+  font-weight: 700; 
+  background: linear-gradient(135deg, #D4AF37, #F4E4C1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.balance-label { 
+  font-size: 12px; 
+  color: var(--gray-text); 
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 300;
+}
+
+.button-row { display: flex; gap: 12px; }
+
+.button-row button { flex: 1; }
+
+.header::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+  margin: 20px auto 0;
+}
+
+@media (max-width: 480px) {
+  .content { padding: 30px 24px; }
+  h1 { font-size: 24px; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <span><strong>Feastly</strong></span>
+      <span id="restaurantTag" class="pill">Loading...</span>
+    </div>
+
+    <div class="tabs" data-active="add">
+      <button class="tab active" data-tab="add">Add Points</button>
+      <button class="tab" data-tab="redeem">Redeem Points</button>
+      <div class="tab-indicator"></div>
+    </div>
+
+    <div class="content">
+      <!-- Add Points -->
+      <div class="tab-content active" id="add-tab">
+        <div class="header">
+          <div class="logo">F</div>
+          <h1>Add Points</h1>
+          <p class="subtitle">Create new transaction and add points</p>
+        </div>
+
+        <div class="error" id="errorMsg1"></div>
+        <div class="success" id="successMsg1"></div>
+
+        <form id="transactionForm">
+          <div class="form-group">
+            <label for="phone1">Phone Number</label>
+            <input type="tel" id="phone1" placeholder="919876543210" required>
+            <div class="input-hint">Enter phone with country code</div>
+          </div>
+
+          <div class="form-group">
+            <label for="name1">Customer Name (Optional)</label>
+            <input type="text" id="name1" placeholder="e.g., Rahul Kumar">
+          </div>
+
+          <div class="form-group">
+            <label for="bill1">Bill Amount (₹)</label>
+            <input type="number" id="bill1" placeholder="500" min="1" step="0.01" required>
+            <div class="input-hint">Enter amount in rupees</div>
+            <div class="points-display" id="pointsDisplay1"></div>
+          </div>
+
+          <button type="submit">Create Transaction</button>
+          <div class="loading" id="loading1"><span class="spinner"></span>Processing...</div>
+        </form>
+
+        <div class="info-box"><strong>Info:</strong><br>Customer will receive WhatsApp notification with points added.</div>
+      </div>
+
+      <!-- Redeem Points -->
+      <div class="tab-content" id="redeem-tab">
+        <div class="header">
+          <div class="logo">F</div>
+          <h1>Redeem Points</h1>
+          <p class="subtitle">Check balance and redeem customer points</p>
+        </div>
+
+        <div class="error" id="errorMsg2"></div>
+        <div class="success" id="successMsg2"></div>
+
+        <div class="form-group">
+          <label for="phone2">Phone Number</label>
+          <input type="tel" id="phone2" placeholder="919876543210" required>
+          <div class="input-hint">Enter phone with country code</div>
+        </div>
+
+        <div class="button-row">
+          <button id="checkBtn">Check Balance</button>
+          <button id="clearBtn" class="secondary">Clear</button>
+        </div>
+
+        <div id="balanceSection" style="display:none">
+          <div class="balance-box">
+            <div class="balance-amount" id="balanceAmount">0</div>
+            <div class="balance-label">Available Points</div>
+          </div>
+
+          <div class="form-group">
+            <label for="points2">Points to Redeem</label>
+            <input type="number" id="points2" placeholder="Enter points (e.g., 100)" min="1">
+          </div>
+
+          <div class="form-group">
+            <label for="rewardDesc">Reward Description (Optional)</label>
+            <input type="text" id="rewardDesc" placeholder="e.g., ₹100 discount at billing">
+          </div>
+
+          <button id="redeemBtn">Redeem Points</button>
+          <div class="loading" id="loading2"><span class="spinner"></span>Processing...</div>
+        </div>
+
+        <div class="info-box"><strong>Tip:</strong> 1 point = ₹1. If customer doesn't exist, create transaction first in Add Points tab.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ======= CONFIG =======
+    const BACKEND_URL = "https://zr-q3p2.onrender.com";
+    const POINTS_RATE = 10;
+    const DEFAULT_RESTAURANT_ID = "rest_001";
+
+    // ======= RESTAURANT ID =======
+    const urlParams = new URLSearchParams(window.location.search);
+    const RESTAURANT_ID = urlParams.get("rest_id") || DEFAULT_RESTAURANT_ID;
+
+    console.log("Restaurant ID:", RESTAURANT_ID);
+    document.getElementById("restaurantTag").textContent = RESTAURANT_ID;
+
+    // ======= TAB SWITCH =======
+    const tabsContainer = document.querySelector('.tabs');
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        const tabName = tab.dataset.tab;
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById(tabName + "-tab").classList.add("active");
+        tabsContainer.dataset.active = tabName;
+        hideAllMessages();
+      });
+    });
+
+    // ======= HELPERS =======
+    function showError(id, text) {
+      const e = document.getElementById(id);
+      e.textContent = text;
+      e.style.display = "block";
+      document.getElementById(id.replace("errorMsg","successMsg")).style.display = "none";
+    }
+
+    function showSuccess(id, text) {
+      const e = document.getElementById(id);
+      e.textContent = text;
+      e.style.display = "block";
+      document.getElementById(id.replace("successMsg","errorMsg")).style.display = "none";
+    }
+
+    function hideMessages(eid, sid) {
+      document.getElementById(eid).style.display = "none";
+      document.getElementById(sid).style.display = "none";
+    }
+
+    function hideAllMessages() {
+      hideMessages("errorMsg1","successMsg1");
+      hideMessages("errorMsg2","successMsg2");
+    }
+
+    function cleanPhone(phone) {
+      if (!phone) return null;
+      const digits = phone.replace(/\D/g,"");
+      if (digits.length === 10) return "91" + digits;
+      if (digits.length === 12 && digits.startsWith("91")) return digits;
+      if (digits.length > 10) return digits;
+      return null;
+    }
+
+    // ======= ADD POINTS =======
+    const form1 = document.getElementById("transactionForm");
+    const phone1 = document.getElementById("phone1");
+    const name1 = document.getElementById("name1");
+    const bill1 = document.getElementById("bill1");
+    const pointsDisplay1 = document.getElementById("pointsDisplay1");
+    const loading1 = document.getElementById("loading1");
+
+    bill1.addEventListener("input", e => {
+      const bill = parseFloat(e.target.value);
+      if (bill > 0) {
+        const points = Math.floor(bill / POINTS_RATE);
+        pointsDisplay1.textContent = "Points Earned: " + points + " points";
+        pointsDisplay1.style.display = "block";
+      } else pointsDisplay1.style.display = "none";
+    });
+
+    form1.addEventListener("submit", async e => {
+      e.preventDefault();
+      hideMessages("errorMsg1","successMsg1");
+
+      const phone = cleanPhone(phone1.value.trim());
+      const name = name1.value.trim();
+      const bill = parseFloat(bill1.value);
+      
+      if (!phone) return showError("errorMsg1","Please enter a valid phone number");
+      if (bill < 1) return showError("errorMsg1","Bill amount must be at least ₹1");
+
+      loading1.style.display = "block";
+      const btn = form1.querySelector('button[type="submit"]');
+      btn.disabled = true;
+
+      try {
+        const points = Math.floor(bill / POINTS_RATE);
+        const transactionId = "txn_" + phone + "_" + Date.now();
+
+        console.log("Creating transaction:", {transactionId, phone, name, bill, points, restaurant: RESTAURANT_ID});
+
+        const res = await fetch(`${BACKEND_URL}/create-transaction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transaction_id: transactionId,
+            customer_phone: phone,
+            customer_name: name,
+            restaurant_id: RESTAURANT_ID,
+            bill_amount: bill,
+            points_earned: points,
+            added_by: "frontend"
+          })
+        });
+
+        const data = await res.json();
+        console.log("Response:", data);
+
+        if (res.ok) {
+          showSuccess("successMsg1", `${points} points added for ${name || phone}`);
+          form1.reset();
+          pointsDisplay1.style.display = "none";
+        } else {
+          showError("errorMsg1", data.error || "Failed to create transaction");
+        }
+      } catch (err) {
+        console.error("Transaction error:", err);
+        showError("errorMsg1","Network error. Please check your connection and try again.");
+      } finally {
+        loading1.style.display = "none";
+        btn.disabled = false;
+      }
+    });
+
+    // ======= REDEEM POINTS =======
+    const phone2 = document.getElementById("phone2");
+    const points2 = document.getElementById("points2");
+    const rewardDesc = document.getElementById("rewardDesc");
+    const balanceSection = document.getElementById("balanceSection");
+    const balanceAmount = document.getElementById("balanceAmount");
+    const checkBtn = document.getElementById("checkBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const redeemBtn = document.getElementById("redeemBtn");
+    const loading2 = document.getElementById("loading2");
+
+    let currentCustomer = null;
+
+    clearBtn.addEventListener("click", () => {
+      hideMessages("errorMsg2","successMsg2");
+      phone2.value = points2.value = rewardDesc.value = "";
+      balanceSection.style.display = "none";
+      currentCustomer = null;
+    });
+
+    checkBtn.addEventListener("click", async () => {
+      hideMessages("errorMsg2","successMsg2");
+      const phone = cleanPhone(phone2.value.trim());
+      
+      if (!phone) return showError("errorMsg2","Please enter a valid phone number");
+      
+      checkBtn.disabled = true;
+
+      try {
+        console.log("Checking balance for:", phone, "Restaurant:", RESTAURANT_ID);
+        
+        const res = await fetch(`${BACKEND_URL}/check-balance?phone=${encodeURIComponent(phone)}&restaurant_id=${encodeURIComponent(RESTAURANT_ID)}`);
+        const data = await res.json();
+        
+        console.log("Balance response:", data);
+
+        if (!res.ok) {
+          showError("errorMsg2", data.error || "Error checking balance");
+          return;
+        }
+        
+        if (!data.found) {
+          showError("errorMsg2","Customer not found. Create transaction first in Add Points tab.");
+          return;
+        }
+
+        const balance = data.customer.points_balance || 0;
+        currentCustomer = data.customer;
+        balanceAmount.textContent = balance;
+        balanceSection.style.display = "block";
+        showSuccess("successMsg2", "Balance retrieved successfully");
+      } catch (err) {
+        console.error("Balance check error:", err);
+        showError("errorMsg2","Network error. Please check your connection and try again.");
+      } finally {
+        checkBtn.disabled = false;
+      }
+    });
+
+    redeemBtn.addEventListener("click", async () => {
+      hideMessages("errorMsg2","successMsg2");
+      
+      if (!currentCustomer) {
+        showError("errorMsg2","Please check balance first");
+        return;
+      }
+
+      const pointsToRedeem = parseInt(points2.value);
+      
+      if (!pointsToRedeem || pointsToRedeem <= 0) {
+        showError("errorMsg2","Please enter valid points amount");
+        return;
+      }
+      
+      if (pointsToRedeem > currentCustomer.points_balance) {
+        showError("errorMsg2",`Insufficient points. Available: ${currentCustomer.points_balance}`);
+        return;
+      }
+
+      redeemBtn.disabled = true;
+      loading2.style.display = "block";
+
+      try {
+        console.log("Redeeming points:", {phone: currentCustomer.phone_number, points: pointsToRedeem, restaurant: RESTAURANT_ID});
+
+        const res = await fetch(`${BACKEND_URL}/redeem`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customer_phone: currentCustomer.phone_number,
+            restaurant_id: RESTAURANT_ID,
+            points_to_redeem: pointsToRedeem,
+            reward_description: rewardDesc.value.trim() || "Points redemption"
+          })
+        });
+
+        const data = await res.json();
+        console.log("Redemption response:", data);
+
+        if (res.ok) {
+          showSuccess("successMsg2", `Redeemed ${pointsToRedeem} points successfully! New balance: ${data.new_balance}`);
+          balanceAmount.textContent = data.new_balance;
+          currentCustomer.points_balance = data.new_balance;
+          points2.value = "";
+          rewardDesc.value = "";
+        } else {
+          showError("errorMsg2", data.error || "Redemption failed");
+        }
+      } catch (err) {
+        console.error("Redemption error:", err);
+        showError("errorMsg2","Network error. Please check your connection and try again.");
+      } finally {
+        loading2.style.display = "none";
+        redeemBtn.disabled = false;
+      }
+    });
+
+    console.log("Feastly initialized");
+  </script>
+</body>
+</html>
